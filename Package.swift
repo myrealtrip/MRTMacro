@@ -20,6 +20,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0"),
+        
+        /// 1.2.0 버전 이상부턴 tuist 와 호환되지 않는 이슈가 있음
+        /// https://github.com/tuist/tuist/issues/6579
+        .package(url: "https://github.com/SwiftyLab/MetaCodable.git", exact: "1.1.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -34,10 +38,19 @@ let package = Package(
         ),
 
         // Library that exposes a macro as part of its API, which is used in client programs.
-        .target(name: "MRTMacro", dependencies: ["MRTMacroTypes"]),
+        .target(
+            name: "MRTMacro",
+            dependencies: [
+                "MRTMacroTypes",
+                .product(name: "MetaCodable", package: "MetaCodable")
+            ]
+        ),
 
         // A client of the library, which is able to use the macro in its own code.
-        .executableTarget(name: "MRTMacroClient", dependencies: ["MRTMacro"]),
+        .executableTarget(
+            name: "MRTMacroClient",
+            dependencies: ["MRTMacro"]
+        ),
 
         // A test target used to develop the macro implementation.
         .testTarget(
